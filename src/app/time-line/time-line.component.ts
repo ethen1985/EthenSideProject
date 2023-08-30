@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue, get, child } from "firebase/database";
 
 @Component({
   selector: 'app-time-line',
@@ -125,7 +127,32 @@ export class TimeLineComponent implements OnInit {
         this.updateVisibleSections()
       });
     this.visibleSections = this.sections.slice(0, this.numToShow);
+
+    const app = initializeApp(this.firebaseConfig);
+    const analytics = getDatabase(app);
+    const starCountRef = ref(analytics);
+    console.log("🚀 ~ starCountRef:", starCountRef)
+    get(starCountRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        console.log(snapshot.val());
+      } else {
+        console.log("No data available");
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
   }
+
+  firebaseConfig = {
+    apiKey: "AIzaSyD-RyoqPsFCc6xVi0AGAJRv17qmq-t0r2I",
+    authDomain: "ethensideproject.firebaseapp.com",
+    databaseURL: "https://ethensideproject-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "ethensideproject",
+    storageBucket: "ethensideproject.appspot.com",
+    messagingSenderId: "164342161327",
+    appId: "1:164342161327:web:d6fd5c266a90a7d376995a",
+    measurementId: "G-MPFTWMDN0W"
+  };
 
   updateVisibleSections() {
     const groupIndex = Math.floor(this.currentSectionIndex / this.numToShow);
