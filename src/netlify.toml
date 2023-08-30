@@ -1,0 +1,9 @@
+# 路由重導
+[[redirects]]
+  from = "/*"  # 這裡的 "/*" 表示所有路由
+  to = "/index.html"  # 重導到 index.html，以讓 Angular 的路由處理
+
+  # 404 路由處理
+[[redirects]]
+  from = "/404.html"  # 404.html 路由
+  to = "/index.html"  # 重導到 index.html，以讓 Angular 的路由處理
