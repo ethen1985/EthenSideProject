@@ -4,10 +4,9 @@ import { MobileNetComponent } from './tensorFlow/mobile-net/mobile-net.component
 import { TimeLineComponent } from './time-line/time-line.component';
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: '/welcome' },
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.module').then(m => m.WelcomeModule) },
   {
-    path: 'mobileNet',
+    path: '',
     component: MobileNetComponent
   },
   {
