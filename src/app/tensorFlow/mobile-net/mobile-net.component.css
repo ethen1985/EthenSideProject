@@ -1,0 +1,71 @@
+.alldiv {
+  background-image: url("../../../assets/background/cool-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.content-container {
+  margin-top: 50px;
+}
+.card-bordered {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.card-bordered .ant-card-body {
+  padding: 16px;
+}
+.container {
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  width: 240px;
+  margin: 10px;
+}
+
+.card nz-card-meta {
+  height: 280px;
+  overflow: auto;
+}
+
+.card nz-avatar {
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+}
+
+.card nz-card-meta nz-description {
+  max-height: 100px;
+  overflow: hidden;
+}
+
+.card nz-card-meta nz-description nz-statistic {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.delete-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

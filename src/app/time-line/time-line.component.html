@@ -1,0 +1,26 @@
+<div class="full-screen-section" *ngFor="let section of sections; let i = index"
+  [style.background-image]="section.background">
+</div>
+
+<!-- <nz-timeline class="timeline" nzMode="alternate">
+  <nz-timeline-item *ngFor="let section of visibleSections; let i = index"
+    [nzColor]="(this.currentSectionIndex === i) ? 'green':'blue'">{{section.timeLineContent}}</nz-timeline-item>
+</nz-timeline> -->
+
+<nz-timeline class="timeline" nzMode="alternate">
+  <ng-container *ngFor="let section of visibleSections; let i = index">
+    <nz-timeline-item [nzDot]="dotTemplate" [nzColor]="(this.findIndex(section.timeLineTitle)) ? 'green' : 'blue'">{{
+      section.timeLineContent }}</nz-timeline-item>
+    <ng-template #dotTemplate>
+      <i nz-icon [nzType]="section.icon" nzTheme="fill" class="custom-icon"></i>
+    </ng-template>
+  </ng-container>
+
+</nz-timeline>
+
+<h1 class="timeLine-title">
+  {{ sections[currentSectionIndex]?.timeLineTitle }}
+  <div class="content">
+    {{ sections[currentSectionIndex]?.content }}
+  </div>
+</h1>
