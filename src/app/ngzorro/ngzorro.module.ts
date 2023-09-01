@@ -13,6 +13,11 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzAffixModule } from 'ng-zorro-antd/affix';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzDrawerModule } from 'ng-zorro-antd/drawer';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+
 @NgModule({
   declarations: [],
   imports: [
@@ -27,9 +32,13 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzGridModule,
     NzLayoutModule,
     NzCardModule,
+    NzDatePickerModule,
     NzSpinModule,
     NzAffixModule,
+    NzDrawerModule,
     NzTimelineModule,
+    NzFormModule,
+    NzInputModule,
   ],
   exports: [
     NzInputNumberModule,
@@ -44,7 +53,11 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzAffixModule,
     NzCardModule,
     NzSpinModule,
+    NzDrawerModule,
     NzTimelineModule,
+    NzDatePickerModule,
+    NzFormModule,
+    NzInputModule,
   ]
 })
 export class NgzorroModule { }

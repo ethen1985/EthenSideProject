@@ -1,26 +1,104 @@
-<div class="full-screen-section" *ngFor="let section of sections; let i = index"
-  [style.background-image]="section.background">
-</div>
+<nz-spin nzTip="Loading..." [nzSpinning]="isLoading">
+  <div>
+    <div class="meun-button" *ngIf="!drawerVisible">
+      <nz-affix nzOffsetTop="25">
+        <button nzGhost nz-button nzType="dashed" (click)="toggleCollapsed()">
+          <span><i nz-icon [nzType]="drawerVisible ? 'menu-unfold' : 'menu-fold'"></i></span>
+        </button>
+      </nz-affix>
+    </div>
+    <div *ngIf="this.sections.length > 0 else welcomePage">
+      <div class="full-screen-section" *ngFor="let section of sections; let i = index"
+        [style.background-image]="'url(' + section.Background + ')'">
+      </div>
+      <nz-timeline class="timeline" nzMode="left">
+        <ng-container *ngFor="let section of visibleSections; let i = index">
+          <nz-timeline-item [nzLabel]="section.TimeLineDate"
+            [nzColor]="(this.findIndex(section.ID)) ? 'green' : 'blue'">{{
+            section.TimeLineContent }}</nz-timeline-item>
+          <ng-template #dotTemplate>
+            <i nz-icon [nzType]="section.TimeLineIcon" nzTheme="fill" class="custom-icon"></i>
+            <!-- <i nz-icon nzType="android" nzTheme="fill" class="custom-icon"></i> -->
+          </ng-template>
+        </ng-container>
+      </nz-timeline>
+      <div class="content-div">
+        <label class="content-title">{{ sections[currentSectionIndex].Title }}</label>
+        <div class="content">
+          {{ sections[currentSectionIndex].Content }}
+        </div>
+      </div>
+    </div>
 
-<!-- <nz-timeline class="timeline" nzMode="alternate">
-  <nz-timeline-item *ngFor="let section of visibleSections; let i = index"
-    [nzColor]="(this.currentSectionIndex === i) ? 'green':'blue'">{{section.timeLineContent}}</nz-timeline-item>
-</nz-timeline> -->
-
-<nz-timeline class="timeline" nzMode="alternate">
-  <ng-container *ngFor="let section of visibleSections; let i = index">
-    <nz-timeline-item [nzDot]="dotTemplate" [nzColor]="(this.findIndex(section.timeLineTitle)) ? 'green' : 'blue'">{{
-      section.timeLineContent }}</nz-timeline-item>
-    <ng-template #dotTemplate>
-      <i nz-icon [nzType]="section.icon" nzTheme="fill" class="custom-icon"></i>
-    </ng-template>
-  </ng-container>
-
-</nz-timeline>
-
-<h1 class="timeLine-title">
-  {{ sections[currentSectionIndex]?.timeLineTitle }}
-  <div class="content">
-    {{ sections[currentSectionIndex]?.content }}
   </div>
-</h1>
+  <ng-template #welcomePage>
+    <div class="full-screen-section" style="background-color: black;">
+    </div>
+  </ng-template>
+
+  <nz-drawer [nzWidth]="'20%'" [nzClosable]="false" [nzMaskClosable]="true" (nzOnClose)="toggleCollapsed()"
+    [nzVisible]="drawerVisible" nzPlacement="right" [nzTitle]="drawerTitle" [nzFooter]="nzFooter">
+    <form *nzDrawerContent nz-form [formGroup]="timeLineForm">
+      <nz-form-item>
+        <nz-form-label nzSm="6" nzXs="24">事件標題
+        </nz-form-label>
+        <nz-form-control nzErrorTip="尚未輸入資料!">
+          <input type="text" nz-input formControlName="Title">
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzSm="6" nzXs="24">事件描述
+        </nz-form-label>
+        <nz-form-control nzErrorTip="尚未輸入資料!">
+          <textarea nz-input formControlName="Content" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzSm="6" nzXs="24">時間線描述
+        </nz-form-label>
+        <nz-form-control nzErrorTip="尚未輸入資料!">
+          <input type="text" nz-input formControlName="TimeLineContent">
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzSm="6" nzXs="24">時間線日期
+        </nz-form-label>
+        <nz-form-control nzErrorTip="尚未選擇日期!">
+          <nz-date-picker style="width: 100%;" formControlName="TimeLineDate"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzSm="6" nzXs="24">背景圖片
+        </nz-form-label>
+        <nz-form-control nzErrorTip="尚未上傳圖片!">
+          <input hidden type="text" nz-input formControlName="Background">
+          <input #uploadFileInput hidden type="file" id="uploadFile" accept=".jpg,.jpeg,.png"
+            (change)="onFileSelected($event)" />
+          <button nz-button nzGhost nzType="primary" (click)="clickFile()" [nzLoading]="uploadLoading">
+            <i nz-icon nzType="import" nzTheme="outline"></i>上傳圖片
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzSm="6" nzXs="24">圖片預覽
+        </nz-form-label>
+        <nz-form-control nzSm="16" nzXs="24">
+          <img nz-image width="100%" height="100%" [nzSrc]="this.timeLineForm.get('Background')?.value"
+            *ngIf="this.timeLineForm.get('Background')?.value" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+
+  </nz-drawer>
+
+  <ng-template #nzFooter>
+    <!-- <button type="button" style="margin-right: 8px;" (click)="controLoadChart()" nz-button
+      nzType="default"><span>讀取圖表</span></button> -->
+    <button type="button" (click)="addTimeLine()" nz-button nzType="primary"><span>建立時間線</span></button>
+  </ng-template>
+  <ng-template #drawerTitle>
+    <div>
+      建立時間軸事件
+    </div>
+  </ng-template>
+</nz-spin>

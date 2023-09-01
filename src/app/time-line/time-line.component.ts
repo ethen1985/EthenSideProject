@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, get, child } from "firebase/database";
+import { getDatabase, ref as databaseRef, onValue, get, child, set, push } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-time-line',
@@ -11,11 +14,101 @@ import { getDatabase, ref, onValue, get, child } from "firebase/database";
 })
 export class TimeLineComponent implements OnInit {
 
-  // 在組件類別中新增一個成員變數
+  timeLineForm: FormGroup = this.fb.group({
+    Background: [null, [Validators.required]],
+    Content: [null, [Validators.required]],
+    Title: [null, [Validators.required]],
+    TimeLineIcon: 'android',
+    TimeLineDate: [null, [Validators.required]],
+    TimeLineContent: [null, [Validators.required]],
+  });
+  constructor(private renderer: Renderer2, private el: ElementRef, private fb: FormBuilder) { }
+
+  @ViewChild('uploadFileInput') uploadFileInput!: ElementRef;
+
+
+
   visibleSections: any[] = [];
-  numToShow = 5; // 顯示的區塊數量
-  constructor() { }
-  sections = [
+  sections: any[] = [];
+  currentSectionIndex = 0;
+  layoutType = 'vertical';
+
+  isLoading: boolean = true;
+  uploadLoading: boolean = false;
+  drawerVisible: boolean = false;
+  numToShow = 5;
+  selectedFile: File | null = null;
+
+  onFileSelected(event: any) {
+    const selectedFile = event.target.files[0];
+    this.selectedFile = selectedFile;
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      console.log(e)
+      this.timeLineForm.get('Background')?.setValue(e.target.result);
+      this.uploadLoading = false;
+    };
+    reader.readAsDataURL(selectedFile);
+  }
+
+  upToFireBase() {
+
+    if (this.selectedFile) {
+      let splitName = this.selectedFile?.name.split('.');
+      const fileExtension = splitName[splitName.length - 1];
+      const fileName = this.generateRandomNumber(20) + '.' + fileExtension;
+      const storage = getStorage();
+      const storageref = storageRef(storage, "timeLineImages/" + fileName);
+
+      uploadBytes(storageref, this.selectedFile)
+        .then((snapshot) => {
+          this.timeLineForm.get('Background')?.setValue("https://firebasestorage.googleapis.com/v0/b/ethensideproject.appspot.com/o/timeLineImages%2F" + fileName + "?alt=media");
+          this.insertDataBase();
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          console.error("圖片上傳失敗", error);
+        });
+    }
+  }
+
+
+  clickFile() {
+    this.renderer.setAttribute(this.uploadFileInput.nativeElement, 'type', 'file');
+    this.uploadFileInput.nativeElement.click();
+    this.uploadLoading = true;
+  }
+  insertDataBase() {
+
+    const app = initializeApp(this.firebaseConfig);
+    const db = getDatabase(app);
+    const lineDate = this.timeLineForm.get('TimeLineDate')?.value
+    this.timeLineForm.get('TimeLineDate')?.setValue(format(lineDate, 'yyyy-MM-dd'));
+    push(databaseRef(db), this.timeLineForm.value);
+    this.isLoading = false;
+  }
+
+  addTimeLine() {
+
+    for (const i in this.timeLineForm.controls) {
+      this.timeLineForm.controls[i].markAsDirty();
+      this.timeLineForm.controls[i].updateValueAndValidity();
+    }
+
+    if (this.timeLineForm.valid) {
+      this.isLoading = true;
+      this.upToFireBase();
+    }
+
+  }
+
+  /** 開關抽屜 */
+  toggleCollapsed(): void {
+    this.drawerVisible = !this.drawerVisible;
+  }
+
+
+  sections__ = [
     {
       content: '區塊 1',
       icon: 'android',
@@ -118,29 +211,74 @@ export class TimeLineComponent implements OnInit {
 
     // 新增更多區塊
   ];
-  currentSectionIndex = 0;
+
   ngOnInit(): void {
+
+    this.timeLineForm = this.fb.group({
+      Background: [null, [Validators.required]],
+      Content: [null, [Validators.required]],
+      Title: [null, [Validators.required]],
+      TimeLineIcon: 'android',
+      TimeLineDate: [null, [Validators.required]],
+      TimeLineContent: [null, [Validators.required]],
+    });
+
+
     fromEvent(window, 'scroll')
       .pipe(debounceTime(100))
       .subscribe(() => {
         this.updateCurrentSectionIndex();
         this.updateVisibleSections()
       });
-    this.visibleSections = this.sections.slice(0, this.numToShow);
+    //this.visibleSections = this.sections.slice(0, this.numToShow);
 
     const app = initializeApp(this.firebaseConfig);
     const analytics = getDatabase(app);
-    const starCountRef = ref(analytics);
-    console.log("🚀 ~ starCountRef:", starCountRef)
-    get(starCountRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        console.log(snapshot.val());
-      } else {
-        console.log("No data available");
+    const starCountRef = databaseRef(analytics);
+
+    onValue(starCountRef, (snapshot) => {
+      this.isLoading = false;
+      if (snapshot.val()) {
+        this.sections = this.formatData(snapshot.val());
+        console.log("🚀 ~ this.sections:", this.sections)
+        this.visibleSections = this.sections.slice(0, this.numToShow);
       }
-    }).catch((error) => {
-      console.error(error);
     });
+
+
+    // get(starCountRef).then((snapshot) => {
+    //   if (snapshot.exists()) {
+    //     this.sections = snapshot.val();
+    //     this.visibleSections = this.sections.slice(0, this.numToShow);
+    //     this.isLoading = false;
+    //     console.log(snapshot.val());
+    //   } else {
+    //     console.log("No data available");
+    //   }
+    // }).catch((error) => {
+    //   console.error(error);
+    // });
+  }
+
+  formatData(data: any) {
+
+    let tempData: any[] = [];
+    let valueData = Object.values(data).filter((item: any, index, self) =>
+      index === self.findIndex((t: any) => t.Background === item.Background)
+    );;
+
+    // 對 valueData 進行日期排序
+    valueData.sort((a: any, b: any) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getDate() - dateB.getDate();
+    });
+
+    valueData.forEach((x: any, index) => {
+      x.ID = index;
+      tempData.push(x);
+    });
+    return tempData;
   }
 
   firebaseConfig = {
@@ -161,11 +299,9 @@ export class TimeLineComponent implements OnInit {
     this.visibleSections = this.sections.slice(startIdx, endIdx);
   }
 
-  findIndex(timeLineTitle: any) {
+  findIndex(ID: any) {
 
-    return this.sections.findIndex(x => x.timeLineTitle === timeLineTitle) === this.currentSectionIndex
-
-
+    return this.sections.findIndex(x => x.ID === ID) === this.currentSectionIndex
   }
 
   updateCurrentSectionIndex() {
@@ -182,6 +318,16 @@ export class TimeLineComponent implements OnInit {
         break;
       }
     }
+  }
+
+  generateRandomNumber(length: number): string {
+    const characters = '0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters[randomIndex];
+    }
+    return result;
   }
 
 }
