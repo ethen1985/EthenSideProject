@@ -144,4 +144,22 @@
   .content {
     font-size: 16px;
   }
+
+  .timeline {
+    top: 5px;
+    left: 5px;
+    width: 300px;
+    max-height: 400; /* 移除最大高度限制 */
+    padding-top: 5px; /* 調整內邊距 */
+  }
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .content-title {
+    font-size: 24px;
+  }
+
+  .content {
+    font-size: 14px;
+  }
 }

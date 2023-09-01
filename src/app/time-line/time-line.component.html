@@ -17,8 +17,13 @@
     </div>
     <div *ngIf="this.sections.length > 0 else welcomePage">
       <div class="full-screen-section" *ngFor="let section of sections; let i = index">
-        <img nz-image [nzDisablePreview]="true" [width]="maxWidth" [height]="maxHeight " [nzSrc]="section.Background"
-          alt="" />
+        <img *ngIf="maxWidth > maxHeight else landscape" nz-image [nzDisablePreview]="true" [height]="maxHeight"
+          [nzSrc]="section.Background" alt="" />
+        <ng-template #landscape>
+          <img nz-image [nzDisablePreview]="true" [width]="maxWidth" [height]="maxHeight" [nzSrc]="section.Background"
+            alt="" />
+        </ng-template>
+
       </div>
       <!-- <div class="full-screen-section" *ngFor="let section of sections; let i = index"
         [style.background-image]="'url(' + section.Background + ')'">
@@ -47,8 +52,8 @@
     </div>
   </ng-template>
 
-  <nz-modal [(nzVisible)]="addModalVisible" nzTitle="新增時間軸" nzOkText="建立時間軸" (nzOnCancel)="closeModal()"
-    (nzOnOk)="addTimeLine()">
+  <nz-modal [(nzVisible)]="addModalVisible" [nzMaskClosable]="false" nzTitle="新增時間軸" nzOkText="建立時間軸"
+    (nzOnCancel)="closeModal()" (nzOnOk)="addTimeLine()">
     <form *nzModalContent nz-form [formGroup]="timeLineForm">
       <nz-form-item>
         <nz-form-label nzSm="6" nzXs="24">事件標題
