@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, Renderer2, ViewChild, HostListener } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { initializeApp } from "firebase/app";
@@ -21,34 +21,43 @@ export class TimeLineComponent implements OnInit {
     TimeLineIcon: 'android',
     TimeLineDate: [null, [Validators.required]],
     TimeLineContent: [null, [Validators.required]],
+    Creator: 'globeblue0313@gmail.com',
   });
   constructor(private renderer: Renderer2, private el: ElementRef, private fb: FormBuilder) { }
 
   @ViewChild('uploadFileInput') uploadFileInput!: ElementRef;
 
-
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.maxWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    this.maxHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  }
 
   visibleSections: any[] = [];
-  sections: any[] = [];
+  sections__: any[] = [];
   currentSectionIndex = 0;
   layoutType = 'vertical';
 
-  isLoading: boolean = true;
+  isLoading: boolean = false;
   uploadLoading: boolean = false;
-  drawerVisible: boolean = false;
+  addModalVisible: boolean = false;
   numToShow = 5;
+  maxWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  maxHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
   selectedFile: File | null = null;
 
   onFileSelected(event: any) {
     const selectedFile = event.target.files[0];
-    this.selectedFile = selectedFile;
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      console.log(e)
-      this.timeLineForm.get('Background')?.setValue(e.target.result);
-      this.uploadLoading = false;
-    };
-    reader.readAsDataURL(selectedFile);
+    if (selectedFile) {
+      this.selectedFile = selectedFile;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        console.log(e)
+        this.timeLineForm.get('Background')?.setValue(e.target.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
   }
 
   upToFireBase() {
@@ -76,7 +85,7 @@ export class TimeLineComponent implements OnInit {
   clickFile() {
     this.renderer.setAttribute(this.uploadFileInput.nativeElement, 'type', 'file');
     this.uploadFileInput.nativeElement.click();
-    this.uploadLoading = true;
+
   }
   insertDataBase() {
 
@@ -85,6 +94,8 @@ export class TimeLineComponent implements OnInit {
     const lineDate = this.timeLineForm.get('TimeLineDate')?.value
     this.timeLineForm.get('TimeLineDate')?.setValue(format(lineDate, 'yyyy-MM-dd'));
     push(databaseRef(db), this.timeLineForm.value);
+    this.timeLineForm.get('Background')?.setValue(null)
+    this.timeLineForm.reset();
     this.isLoading = false;
   }
 
@@ -98,116 +109,37 @@ export class TimeLineComponent implements OnInit {
     if (this.timeLineForm.valid) {
       this.isLoading = true;
       this.upToFireBase();
+      this.addModalVisible = !this.addModalVisible;
     }
 
   }
 
   /** 開關抽屜 */
-  toggleCollapsed(): void {
-    this.drawerVisible = !this.drawerVisible;
+  closeModal(): void {
+    this.timeLineForm.reset();
+    this.addModalVisible = !this.addModalVisible;
   }
 
 
-  sections__ = [
+  sections = [
     {
-      content: '區塊 1',
-      icon: 'android',
-      timeLineTitle: '第一個區塊的標題',
-      timeLineContent: 'Create a services site 1Create a services site 1Create a services site 1',
-      background: 'url("https://img.ixintu.com/download/jpg/202010/e390b22120b1a6c01732c3bf5a4c8dd7_800_500.jpg!con")'
+      "ID": 1,
+      "Background": "https://firebasestorage.googleapis.com/v0/b/ethensideproject.appspot.com/o/timeLineImages%2F80676484604578988926.jpg?alt=media",
+      "Content": "雖然已計畫擁有孩子，但這麼快就到了，還真是有點措手不及",
+      "Creator": "globeblue0313@gmail.com",
+      "TimeLineContent": "懷孕了!!",
+      "TimeLineDate": "2020-03-13",
+      "TimeLineIcon": "android",
+      "Title": "老婆懷孕了~~"
     },
     {
-      content: '區塊 2',
-      icon: 'android',
-      timeLineTitle: '2個區塊的標題',
-      timeLineContent: 'Create a services site 2',
-      background: 'url("https://img.ixintu.com/download/jpg/202110/ebdf9d9127383b8c414571bacffa89f8_800_509.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '3個區塊的標題',
-      timeLineContent: 'Create a services site 3',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
+      "ID": 2,
+      "Background": "https://firebasestorage.googleapis.com/v0/b/ethensideproject.appspot.com/o/timeLineImages%2F81238533087209230384.jpg?alt=media",
+      "Content": "迎接了我們家的小公主，開始了美妙的育兒旅程。",
+      "TimeLineContent": "女兒出生啦！",
+      "TimeLineDate": "2020-12-28",
+      "Title": "寶寶來報到"
     }
-    ,
-    {
-      content: '區塊 4',
-      icon: 'android',
-      timeLineTitle: '4個區塊的標題',
-      timeLineContent: 'Create a services site 4',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 5',
-      icon: 'android',
-      timeLineTitle: '5個區塊的標題',
-      timeLineContent: 'Create a services site 5',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 6',
-      icon: 'android',
-      timeLineTitle: '6個區塊的標題',
-      timeLineContent: 'Create a services site 6',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '7個區塊的標題',
-      timeLineContent: 'Create a services site 7',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '8個區塊的標題',
-      timeLineContent: 'Create a services site 8',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '9個區塊的標題',
-      timeLineContent: 'Create a services site 9',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '10個區塊的標題',
-      timeLineContent: 'Create a services site 10',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '11個區塊的標題',
-      timeLineContent: 'Create a services site 11',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '12個區塊的標題',
-      timeLineContent: 'Create a services site 12',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'android',
-      timeLineTitle: '13個區塊的標題',
-      timeLineContent: 'Create a services site 13',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
-    {
-      content: '區塊 3',
-      icon: 'qq',
-      timeLineTitle: '14個區塊的標題',
-      timeLineContent: 'Create a services site 14',
-      background: 'url("https://img.ixintu.com/download/jpg/202003/f9e1561a55bec2e7972822702172126f_800_399.jpg!con")'
-    },
 
     // 新增更多區塊
   ];
@@ -221,6 +153,7 @@ export class TimeLineComponent implements OnInit {
       TimeLineIcon: 'android',
       TimeLineDate: [null, [Validators.required]],
       TimeLineContent: [null, [Validators.required]],
+      Creator: 'globeblue0313@gmail.com',
     });
 
 

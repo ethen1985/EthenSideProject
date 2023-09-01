@@ -14,8 +14,8 @@
 
 .timeline {
   position: fixed;
-  top: 100px;
-  left: 100px;
+  top: 30px;
+  left: 10px;
   width: 300px;
   max-height: 600; /* 移除最大高度限制 */
   background-color: rgba(
@@ -24,7 +24,7 @@
     255,
     0.5
   ); /* 設定背景顏色，這裡使用了白色的背景，並設定了透明度 */
-  padding: 20px; /* 調整內邊距 */
+  padding-top: 15px; /* 調整內邊距 */
   border-radius: 8px; /* 添加圓角效果 */
   /*overflow-y: auto;  新增垂直滾動條，只在內容超過元素高度時顯示 */
   z-index: 1; /* 設定疊放順序 */
@@ -125,6 +125,23 @@
 
 .meun-button {
   position: fixed;
-  right: 40px;
+  bottom: 25px; /* 距離底部的距離 */
+  right: 25px; /* 距離右邊的距離 */
+  display: flex;
+  flex-direction: row;
   z-index: 999; /* 如果需要 */
+}
+
+@media screen and (max-width: 768px) and (orientation: landscape) {
+  .content-div {
+    height: 35%;
+  }
+
+  .content-title {
+    font-size: 24px;
+  }
+
+  .content {
+    font-size: 16px;
+  }
 }

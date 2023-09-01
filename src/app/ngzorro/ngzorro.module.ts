@@ -17,6 +17,7 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 @NgModule({
   declarations: [],
@@ -35,6 +36,7 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
     NzDatePickerModule,
     NzSpinModule,
     NzAffixModule,
+    NzModalModule,
     NzDrawerModule,
     NzTimelineModule,
     NzFormModule,
@@ -48,6 +50,7 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
     NzUploadModule,
     NzButtonModule,
     NzGridModule,
+    NzModalModule,
     NzIconModule,
     NzLayoutModule,
     NzAffixModule,
